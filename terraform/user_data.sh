@@ -4,7 +4,8 @@
 # Runs on EC2 first boot:
 #   1. Installs Docker
 #   2. Clones repo from GitHub
-#   3. Builds and runs all containers
+#   3. Pulls images from DockerHub
+#   4. Runs all containers
 # ─────────────────────────────────────────
 
 set -e
@@ -51,36 +52,147 @@ cd /home/ubuntu
 git clone https://github.com/Avinashsain/E-CommerceStore.git app
 cd app
 
-# ── Write .env file with public IP ───────
-cat > .env << ENVEOF
-NODE_ENV=production
-JWT_SECRET=${jwt_secret}
+# ── Write docker-compose.yml using DockerHub images ──
+cat > docker-compose.yml << COMPOSEEOF
+services:
 
-# MongoDB Atlas
-MONGODB_URI_USERS=mongodb+srv://avinashsain65_db_user:TGyVdGAv1aYyOgqi@herocluster1.csewjfm.mongodb.net/ecommerce_users
-MONGODB_URI_PRODUCTS=mongodb+srv://avinashsain65_db_user:TGyVdGAv1aYyOgqi@herocluster1.csewjfm.mongodb.net/ecommerce_products
-MONGODB_URI_CARTS=mongodb+srv://avinashsain65_db_user:TGyVdGAv1aYyOgqi@herocluster1.csewjfm.mongodb.net/ecommerce_carts
-MONGODB_URI_ORDERS=mongodb+srv://avinashsain65_db_user:TGyVdGAv1aYyOgqi@herocluster1.csewjfm.mongodb.net/ecommerce_orders
+  user-service:
+    image: ${dockerhub_username}/user-service:latest
+    container_name: user-service
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb+srv://avinashsain65_db_user:TGyVdGAv1aYyOgqi@herocluster1.csewjfm.mongodb.net/ecommerce_users
+      - JWT_SECRET=${jwt_secret}
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
-# Inter-service URLs (Docker network)
-USER_SERVICE_URL=http://user-service:3001
-PRODUCT_SERVICE_URL=http://product-service:3002
-CART_SERVICE_URL=http://cart-service:3003
-ORDER_SERVICE_URL=http://order-service:3004
+  product-service:
+    image: ${dockerhub_username}/product-service:latest
+    container_name: product-service
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb+srv://avinashsain65_db_user:TGyVdGAv1aYyOgqi@herocluster1.csewjfm.mongodb.net/ecommerce_products
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
-# Frontend URLs (uses EC2 public IP)
-REACT_APP_USER_SERVICE_URL=http://$PUBLIC_IP:3001
-REACT_APP_PRODUCT_SERVICE_URL=http://$PUBLIC_IP:3002
-REACT_APP_CART_SERVICE_URL=http://$PUBLIC_IP:3003
-REACT_APP_ORDER_SERVICE_URL=http://$PUBLIC_IP:3004
-ENVEOF
+  cart-service:
+    image: ${dockerhub_username}/cart-service:latest
+    container_name: cart-service
+    restart: unless-stopped
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb+srv://avinashsain65_db_user:TGyVdGAv1aYyOgqi@herocluster1.csewjfm.mongodb.net/ecommerce_carts
+      - PRODUCT_SERVICE_URL=http://product-service:3002
+      - USER_SERVICE_URL=http://user-service:3001
+    depends_on:
+      user-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
-echo "--- .env written with PUBLIC_IP=$PUBLIC_IP ---"
-cat .env
+  order-service:
+    image: ${dockerhub_username}/order-service:latest
+    container_name: order-service
+    restart: unless-stopped
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb+srv://avinashsain65_db_user:TGyVdGAv1aYyOgqi@herocluster1.csewjfm.mongodb.net/ecommerce_orders
+      - CART_SERVICE_URL=http://cart-service:3003
+      - PRODUCT_SERVICE_URL=http://product-service:3002
+      - USER_SERVICE_URL=http://user-service:3001
+    depends_on:
+      cart-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
-# ── Build and start all containers ───────
-echo "--- Building and starting containers ---"
-docker compose up --build -d
+  frontend-service:
+    image: ${dockerhub_username}/frontend:latest
+    container_name: frontend-service
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - REACT_APP_USER_SERVICE_URL=http://$PUBLIC_IP:3001
+      - REACT_APP_PRODUCT_SERVICE_URL=http://$PUBLIC_IP:3002
+      - REACT_APP_CART_SERVICE_URL=http://$PUBLIC_IP:3003
+      - REACT_APP_ORDER_SERVICE_URL=http://$PUBLIC_IP:3004
+    depends_on:
+      user-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+      cart-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+
+networks:
+  ecommerce-network:
+    driver: bridge
+COMPOSEEOF
+
+echo "--- docker-compose.yml written ---"
+
+# ── Pull images from DockerHub ────────────
+echo "--- Pulling images from DockerHub ---"
+docker pull ${dockerhub_username}/user-service:latest
+docker pull ${dockerhub_username}/product-service:latest
+docker pull ${dockerhub_username}/cart-service:latest
+docker pull ${dockerhub_username}/order-service:latest
+docker pull ${dockerhub_username}/frontend:latest
+
+echo "--- All images pulled ---"
+
+# ── Start all containers ──────────────────
+echo "--- Starting containers ---"
+docker compose up -d
 
 # ── Wait for containers to start ─────────
 echo "--- Waiting for services to start ---"

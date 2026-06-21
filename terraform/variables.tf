@@ -26,3 +26,7 @@ variable "hash_key" {
   type        = string
   default     = "LockID"
 }
+variable "dockerhub_username" {
+  description = "DockerHub username to pull images from"
+  default     = "avinashsain65"
+}
