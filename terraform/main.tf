@@ -86,7 +86,7 @@ resource "aws_security_group" "app" {
 
 # ── Key Pair ─────────────────────────────
 resource "aws_key_pair" "deployer" {
-  key_name   = "${var.project_name}-key"
+  key_name   = "${var.project_name}-key-${formatdate("YYYYMMDDhhmmss", timestamp())}"
   public_key = file(var.public_key_path)
 }
 
@@ -127,8 +127,12 @@ resource "aws_instance" "app" {
   }
 
   user_data = templatefile("${path.module}/user_data.sh", {
-    jwt_secret         = var.jwt_secret
-    dockerhub_username = var.dockerhub_username
+    jwt_secret           = var.jwt_secret
+    dockerhub_username   = var.dockerhub_username
+    mongodb_uri_users    = var.mongodb_uri_users
+    mongodb_uri_products = var.mongodb_uri_products
+    mongodb_uri_carts    = var.mongodb_uri_carts
+    mongodb_uri_orders   = var.mongodb_uri_orders
   })
 
   tags = {

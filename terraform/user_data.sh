@@ -1,11 +1,7 @@
 #!/bin/bash
 # ─────────────────────────────────────────
-# user_data.sh
-# Runs on EC2 first boot:
-#   1. Installs Docker
-#   2. Clones repo from GitHub
-#   3. Pulls images from DockerHub
-#   4. Runs all containers
+# user_data.sh — NO secrets here
+# All secrets passed via Terraform variables
 # ─────────────────────────────────────────
 
 set -e
@@ -52,7 +48,8 @@ cd /home/ubuntu
 git clone https://github.com/Avinashsain/E-CommerceStore.git app
 cd app
 
-# ── Write docker-compose.yml using DockerHub images ──
+# ── Write docker-compose.yml ─────────────
+# All secrets injected via templatefile() from Terraform
 cat > docker-compose.yml << COMPOSEEOF
 services:
 
@@ -65,7 +62,7 @@ services:
     environment:
       - PORT=3001
       - NODE_ENV=production
-      - MONGODB_URI=mongodb+srv://avinashsain65_db_user:TGyVdGAv1aYyOgqi@herocluster1.csewjfm.mongodb.net/ecommerce_users
+      - MONGODB_URI=${mongodb_uri_users}
       - JWT_SECRET=${jwt_secret}
     networks:
       - ecommerce-network
@@ -85,7 +82,7 @@ services:
     environment:
       - PORT=3002
       - NODE_ENV=production
-      - MONGODB_URI=mongodb+srv://avinashsain65_db_user:TGyVdGAv1aYyOgqi@herocluster1.csewjfm.mongodb.net/ecommerce_products
+      - MONGODB_URI=${mongodb_uri_products}
     networks:
       - ecommerce-network
     healthcheck:
@@ -104,7 +101,7 @@ services:
     environment:
       - PORT=3003
       - NODE_ENV=production
-      - MONGODB_URI=mongodb+srv://avinashsain65_db_user:TGyVdGAv1aYyOgqi@herocluster1.csewjfm.mongodb.net/ecommerce_carts
+      - MONGODB_URI=${mongodb_uri_carts}
       - PRODUCT_SERVICE_URL=http://product-service:3002
       - USER_SERVICE_URL=http://user-service:3001
     depends_on:
@@ -130,7 +127,7 @@ services:
     environment:
       - PORT=3004
       - NODE_ENV=production
-      - MONGODB_URI=mongodb+srv://avinashsain65_db_user:TGyVdGAv1aYyOgqi@herocluster1.csewjfm.mongodb.net/ecommerce_orders
+      - MONGODB_URI=${mongodb_uri_orders}
       - CART_SERVICE_URL=http://cart-service:3003
       - PRODUCT_SERVICE_URL=http://product-service:3002
       - USER_SERVICE_URL=http://user-service:3001
@@ -194,11 +191,8 @@ echo "--- All images pulled ---"
 echo "--- Starting containers ---"
 docker compose up -d
 
-# ── Wait for containers to start ─────────
-echo "--- Waiting for services to start ---"
 sleep 30
 
-# ── Verify all containers running ────────
 echo "--- Container status ---"
 docker ps
 
