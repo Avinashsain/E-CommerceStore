@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { cartService } from '../services/api';
 import { useAuth } from './AuthContext';
 
@@ -18,16 +18,7 @@ export const CartProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Load cart when user changes
-  useEffect(() => {
-    if (user) {
-      loadCart();
-    } else {
-      setCart(null);
-    }
-  }, [user]);
-
-  const loadCart = async () => {
+  const loadCart = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -35,13 +26,22 @@ export const CartProvider = ({ children }) => {
       setError(null);
       const response = await cartService.getCart(user._id);
       setCart(response.data);
-    } catch (error) {
-      console.error('Load cart error:', error);
+    } catch (err) {
+      console.error('Load cart error:', err);
       setError('Failed to load cart');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  // Load cart when user changes
+  useEffect(() => {
+    if (user) {
+      loadCart();
+    } else {
+      setCart(null);
+    }
+  }, [user, loadCart]);
 
   const addToCart = async (productId, quantity = 1) => {
     if (!user) {
@@ -51,15 +51,11 @@ export const CartProvider = ({ children }) => {
 
     try {
       setError(null);
-      const response = await cartService.addToCart(user._id, {
-        productId,
-        quantity
-      });
-      
+      const response = await cartService.addToCart(user._id, { productId, quantity });
       setCart(response.data.cart);
       return { success: true };
-    } catch (error) {
-      const message = error.response?.data?.message || 'Failed to add item to cart';
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to add item to cart';
       setError(message);
       return { success: false, error: message };
     }
@@ -70,14 +66,11 @@ export const CartProvider = ({ children }) => {
 
     try {
       setError(null);
-      const response = await cartService.updateCartItem(user._id, productId, {
-        quantity
-      });
-      
+      const response = await cartService.updateCartItem(user._id, productId, { quantity });
       setCart(response.data.cart);
       return { success: true };
-    } catch (error) {
-      const message = error.response?.data?.message || 'Failed to update cart item';
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to update cart item';
       setError(message);
       return { success: false, error: message };
     }
@@ -89,11 +82,10 @@ export const CartProvider = ({ children }) => {
     try {
       setError(null);
       const response = await cartService.removeFromCart(user._id, productId);
-      
       setCart(response.data.cart);
       return { success: true };
-    } catch (error) {
-      const message = error.response?.data?.message || 'Failed to remove item from cart';
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to remove item from cart';
       setError(message);
       return { success: false, error: message };
     }
@@ -105,11 +97,10 @@ export const CartProvider = ({ children }) => {
     try {
       setError(null);
       const response = await cartService.clearCart(user._id);
-      
       setCart(response.data.cart);
       return { success: true };
-    } catch (error) {
-      const message = error.response?.data?.message || 'Failed to clear cart';
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to clear cart';
       setError(message);
       return { success: false, error: message };
     }
@@ -124,19 +115,14 @@ export const CartProvider = ({ children }) => {
       setError(null);
       const response = await cartService.validateCart(user._id);
       return response.data;
-    } catch (error) {
-      console.error('Validate cart error:', error);
+    } catch (err) {
+      console.error('Validate cart error:', err);
       return { isValid: false, validationResults: [] };
     }
   };
 
-  const getCartItemsCount = () => {
-    return cart?.totalItems || 0;
-  };
-
-  const getCartTotal = () => {
-    return cart?.totalPrice || 0;
-  };
+  const getCartItemsCount = () => cart?.totalItems || 0;
+  const getCartTotal = () => cart?.totalPrice || 0;
 
   const value = {
     cart,

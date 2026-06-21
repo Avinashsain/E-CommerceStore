@@ -134,6 +134,7 @@ router.post('/', async (req, res) => {
         productId: item.productId,
         quantity: item.quantity,
         price: item.price,
+        total: item.quantity * item.price,
         productDetails: item.productDetails
       })),
       pricing: {

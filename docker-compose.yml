@@ -1,0 +1,130 @@
+services:
+
+  # ─────────────────────────────────────────
+  # BACKEND SERVICES
+  # ─────────────────────────────────────────
+  user-service:
+    build: ./backend/user-service
+    container_name: user-service
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - NODE_ENV=${NODE_ENV}
+      - MONGODB_URI=${MONGODB_URI_USERS}
+      - JWT_SECRET=${JWT_SECRET}
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  product-service:
+    build: ./backend/product-service
+    container_name: product-service
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - NODE_ENV=${NODE_ENV}
+      - MONGODB_URI=${MONGODB_URI_PRODUCTS}
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  cart-service:
+    build: ./backend/cart-service
+    container_name: cart-service
+    restart: unless-stopped
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - NODE_ENV=${NODE_ENV}
+      - MONGODB_URI=${MONGODB_URI_CARTS}
+      - PRODUCT_SERVICE_URL=${PRODUCT_SERVICE_URL}
+      - USER_SERVICE_URL=${USER_SERVICE_URL}
+    depends_on:
+      user-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  order-service:
+    build: ./backend/order-service
+    container_name: order-service
+    restart: unless-stopped
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - NODE_ENV=${NODE_ENV}
+      - MONGODB_URI=${MONGODB_URI_ORDERS}
+      - CART_SERVICE_URL=${CART_SERVICE_URL}
+      - PRODUCT_SERVICE_URL=${PRODUCT_SERVICE_URL}
+      - USER_SERVICE_URL=${USER_SERVICE_URL}
+    depends_on:
+      cart-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ─────────────────────────────────────────
+  # FRONTEND
+  # ─────────────────────────────────────────
+  frontend-service:
+    build: ./frontend
+    container_name: frontend-service
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - REACT_APP_USER_SERVICE_URL=${REACT_APP_USER_SERVICE_URL}
+      - REACT_APP_PRODUCT_SERVICE_URL=${REACT_APP_PRODUCT_SERVICE_URL}
+      - REACT_APP_CART_SERVICE_URL=${REACT_APP_CART_SERVICE_URL}
+      - REACT_APP_ORDER_SERVICE_URL=${REACT_APP_ORDER_SERVICE_URL}
+    depends_on:
+      user-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+      cart-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+
+# ─────────────────────────────────────────
+# NETWORKS
+# ─────────────────────────────────────────
+networks:
+  ecommerce-network:
+    driver: bridge
