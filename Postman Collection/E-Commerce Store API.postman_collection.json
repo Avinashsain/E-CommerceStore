@@ -1,0 +1,1359 @@
+{
+  "info": {
+    "_postman_id": "2cdbd842-f54e-44e0-9ec3-413bc1270840",
+    "name": "E-Commerce Store API",
+    "description": "Complete API collection for E-Commerce Store microservices",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "10633912"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "",
+                  "// Save to environment (works with your .postman_environment.json)",
+                  "if (res.token) {",
+                  "    pm.environment.set('token', res.token);",
+                  "    console.log('Token saved:', res.token);",
+                  "} else {",
+                  "    console.log('❌ No token in response:', JSON.stringify(res));",
+                  "}",
+                  "",
+                  "if (res.user?._id) {",
+                  "    pm.environment.set('user_id', res.user._id);",
+                  "    console.log('User ID saved:', res.user._id);",
+                  "}",
+                  "",
+                  "// Handle different response structures",
+                  "// Some APIs return { data: { token, user } }",
+                  "if (res.data?.token) {",
+                  "    pm.environment.set('token', res.data.token);",
+                  "    console.log('Token saved from res.data:', res.data.token);",
+                  "}",
+                  "if (res.data?.user?._id) {",
+                  "    pm.environment.set('user_id', res.data.user._id);",
+                  "}",
+                  "",
+                  "// Test status",
+                  "pm.test('Login successful', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Token exists in response', () => {",
+                  "    pm.expect(res.token || res.data?.token).to.not.be.undefined;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstName\": \"Amit\",\n    \"lastName\": \"Sain\",\n    \"email\": \"amit@gmail.com\",\n    \"password\":\"password@123\",\n    \"phone\": \"7742523708\",\n    \"role\": \"customer\"\n}"
+            },
+            "url": {
+              "raw": "{{user_url}}/api/auth/register",
+              "host": [
+                "{{user_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "",
+                  "// Save to environment (works with your .postman_environment.json)",
+                  "if (res.token) {",
+                  "    pm.environment.set('token', res.token);",
+                  "    console.log('Token saved:', res.token);",
+                  "} else {",
+                  "    console.log('❌ No token in response:', JSON.stringify(res));",
+                  "}",
+                  "",
+                  "if (res.user?._id) {",
+                  "    pm.environment.set('user_id', res.user._id);",
+                  "    console.log('User ID saved:', res.user._id);",
+                  "}",
+                  "",
+                  "// Handle different response structures",
+                  "// Some APIs return { data: { token, user } }",
+                  "if (res.data?.token) {",
+                  "    pm.environment.set('token', res.data.token);",
+                  "    console.log('Token saved from res.data:', res.data.token);",
+                  "}",
+                  "if (res.data?.user?._id) {",
+                  "    pm.environment.set('user_id', res.data.user._id);",
+                  "}",
+                  "",
+                  "// Test status",
+                  "pm.test('Login successful', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Token exists in response', () => {",
+                  "    pm.expect(res.token || res.data?.token).to.not.be.undefined;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"avinashsain65@gmail.com\",\n    \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{user_url}}/api/auth/login",
+              "host": [
+                "{{user_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{user_url}}/api/users/profile",
+              "host": [
+                "{{user_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Avinash Updated\",\n  \"phone\": \"9876543210\"\n}"
+            },
+            "url": {
+              "raw": "{{user_url}}/api/users/profile",
+              "host": [
+                "{{user_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{product_url}}/api/categories",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const id = res._id || res.category?._id || res.data?._id || res.data?.category?._id;",
+                  "if (id) {",
+                  "    pm.environment.set('category_id', id);",
+                  "    console.log('Category ID saved:', id);",
+                  "} else {",
+                  "    console.log('No category ID found:', JSON.stringify(res));",
+                  "}",
+                  "pm.test('Category created', () => pm.response.to.have.status(201));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Electronics\",\n  \"slug\":\"electronics\",\n  \"description\": \"Electronic gadgets and devices\",\n  \"image\": \"https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400\"\n}"
+            },
+            "url": {
+              "raw": "{{product_url}}/api/categories",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category - Fashion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const id = res._id || res.category?._id || res.data?._id || res.data?.category?._id;",
+                  "if (id) {",
+                  "    pm.environment.set('category_id', id);",
+                  "    console.log('Category ID saved:', id);",
+                  "} else {",
+                  "    console.log('No category ID found:', JSON.stringify(res));",
+                  "}",
+                  "pm.test('Category created', () => pm.response.to.have.status(201));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Fashion\",\n  \"slug\":\"fashion\",\n  \"description\": \"Clothing and accessories\",\n  \"image\": \"https://images.unsplash.com/photo-1445205170230-053b83016050?w=400\"\n}"
+            },
+            "url": {
+              "raw": "{{product_url}}/api/categories",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category - Home & Kitchen",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const id = res._id || res.category?._id || res.data?._id || res.data?.category?._id;",
+                  "if (id) {",
+                  "    pm.environment.set('category_id', id);",
+                  "    console.log('Category ID saved:', id);",
+                  "} else {",
+                  "    console.log('No category ID found:', JSON.stringify(res));",
+                  "}",
+                  "pm.test('Category created', () => pm.response.to.have.status(201));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Home & Kitchen\",\n  \"slug\": \"home-and-kitchen\",\n  \"description\": \"Home appliances and kitchen items\",\n  \"image\": \"https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400\"\n}"
+            },
+            "url": {
+              "raw": "{{product_url}}/api/categories",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{product_url}}/api/categories/{{category_id}}",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{category_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Home & Kitchen\",\n    \"description\": \"Home appliances and kitchen items\",\n    \"slug\": \"home-kitchen\"\n}"
+            },
+            "url": {
+              "raw": "{{product_url}}/api/categories/{{category_id}}",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{category_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{product_url}}/api/categories/{{category_id}}",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{category_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{product_url}}/api/products",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "disabled": true
+                },
+                {
+                  "key": "category",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "minPrice",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product - iPhone",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const id = res._id || res.product?._id || res.data?._id || res.data?.product?._id;",
+                  "if (id) {",
+                  "    pm.environment.set('product_id', id);",
+                  "    console.log('Product ID saved:', id);",
+                  "} else {",
+                  "    console.log('No product ID found:', JSON.stringify(res));",
+                  "}",
+                  "pm.test('Product created', () => pm.response.to.have.status(201));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"iPhone 15 Pro\",\n  \"description\": \"Latest Apple iPhone with A17 Pro chip, titanium design, and 48MP camera system.\",\n  \"price\": 999,\n  \"category\": \"{{category_id}}\",\n  \"brand\": \"Apple\",\n  \"stock\": 50,\n  \"images\": [\n    {\n      \"url\": \"https://images.unsplash.com/photo-1695048133142-1a20484429be?w=400\",\n      \"alt\": \"iPhone 15 Pro\"\n    }\n  ],\n  \"inventory\": {\n    \"sku\": \"APPLE-IP15P-001\",\n    \"quantity\": 50\n  }\n}"
+            },
+            "url": {
+              "raw": "{{product_url}}/api/products",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product - Sony Headphones",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const id = res._id || res.product?._id || res.data?._id || res.data?.product?._id;",
+                  "if (id) {",
+                  "    pm.environment.set('product_id', id);",
+                  "    console.log('Product ID saved:', id);",
+                  "} else {",
+                  "    console.log('No product ID found:', JSON.stringify(res));",
+                  "}",
+                  "pm.test('Product created', () => pm.response.to.have.status(201));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Sony WH-1000XM5\",\n    \"description\": \"Industry leading noise cancelling wireless headphones with 30hr battery.\",\n    \"price\": 349,\n    \"category\": \"{{category_id}}\",\n    \"brand\": \"Sony\",\n    \"stock\": 100,\n    \"images\": [\n        {\n            \"url\": \"https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400\",\n            \"alt\": \"Sony WH-1000XM5\"\n        }\n    ],\n    \"inventory\": {\n        \"sku\": \"SONY-WH1000XM5-001\",\n        \"quantity\": 100\n    }\n}"
+            },
+            "url": {
+              "raw": "{{product_url}}/api/products",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product - MacBook",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const id = res._id || res.product?._id || res.data?._id || res.data?.product?._id;",
+                  "if (id) {",
+                  "    pm.environment.set('product_id', id);",
+                  "    console.log('Product ID saved:', id);",
+                  "} else {",
+                  "    console.log('No product ID found:', JSON.stringify(res));",
+                  "}",
+                  "pm.test('Product created', () => pm.response.to.have.status(201));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"MacBook Pro 14\",\n  \"description\": \"Apple MacBook Pro with M3 chip, 16GB RAM, 512GB SSD. Perfect for professionals.\",\n  \"price\": 1999,\n  \"category\": \"{{category_id}}\",\n  \"brand\": \"Apple\",\n  \"stock\": 25,\n  \"images\": [\n    {\n      \"url\": \"https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400\",\n      \"alt\": \"MacBook Pro 14\"\n    }\n  ],\n  \"inventory\": {\n    \"sku\": \"APPLE-MBP14-001\",\n    \"quantity\": 25\n  }\n}"
+            },
+            "url": {
+              "raw": "{{product_url}}/api/products",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product - Samsung TV",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "const id = res._id || res.product?._id || res.data?._id || res.data?.product?._id;",
+                  "if (id) {",
+                  "    pm.environment.set('product_id', id);",
+                  "    console.log('Product ID saved:', id);",
+                  "} else {",
+                  "    console.log('No product ID found:', JSON.stringify(res));",
+                  "}",
+                  "pm.test('Product created', () => pm.response.to.have.status(201));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Samsung 55\\\" 4K Smart TV\",\n    \"description\": \"55 inch 4K UHD Smart TV with HDR and built-in streaming apps.\",\n    \"price\": 699,\n    \"category\": \"{{category_id}}\",\n    \"brand\": \"Samsung\",\n    \"stock\": 30,\n    \"images\": [\n        {\n            \"url\": \"https://images.unsplash.com/photo-1593359677879-a4bb92f4834d?w=400\",\n            \"alt\": \"Samsung 55 4K TV\"\n        }\n    ],\n    \"inventory\": {\n        \"sku\": \"SAMSUNG-TV55-001\",\n        \"quantity\": 30\n    }\n}"
+            },
+            "url": {
+              "raw": "{{product_url}}/api/products",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{product_url}}/api/products/{{product_id}}",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Samsung 55\\\" 4K Smart TV\",\n    \"description\": \"55 inch 4K UHD Smart TV with HDR and built-in streaming apps.\",\n    \"price\": 699,\n    \"category\": {\n        \"_id\": \"6a36e9c0c8113af8fff88dcb\",\n        \"name\": \"Home & Kitchen\",\n        \"slug\": \"home-kitchen\"\n    },\n    \"brand\": \"Samsung\",\n    \"images\": [\n        {\n            \"url\": \"https://pisces.bbystatic.com/image2/BestBuy_US/images/products/f4d1862a-d5cd-4496-8452-0d42af88d5c7.jpg\",\n            \"alt\": \"Samsung 55 4K TV\",\n            \"_id\": \"6a36ec07c8113af8fff88de5\"\n        },\n        {\n            \"url\": \"https://images-na.ssl-images-amazon.com/images/I/81a7MINnI9L.jpg\",\n            \"alt\": \"Samsung 55 4K TV\"\n        }\n    ],\n    \"inventory\": {\n        \"sku\": \"SAMSUNG-TV55-001\",\n        \"stock\": 6,\n        \"lowStockThreshold\": 10\n    },\n    \"tags\": [\n        \"Samsung\"\n    ],\n    \"isActive\": true,\n    \"featured\": false\n}"
+            },
+            "url": {
+              "raw": "{{product_url}}/api/products/{{product_id}}",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{product_url}}/api/products/{{product_id}}",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{product_url}}/api/products?search=iphone",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "iphone"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filter by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{product_url}}/api/products?category={{category_id}}",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "{{category_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filter by Price Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{product_url}}/api/products?minPrice=500&maxPrice=1500",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "minPrice",
+                  "value": "500"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "1500"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{cart_url}}/api/cart/{{user_id}}",
+              "host": [
+                "{{cart_url}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "{{user_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{product_id}}\",\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{cart_url}}/api/cart/{{user_id}}/add",
+              "host": [
+                "{{cart_url}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "{{user_id}}",
+                "add"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 3\n}"
+            },
+            "url": {
+              "raw": "{{cart_url}}/api/cart/{{user_id}}/item/{{product_id}}",
+              "host": [
+                "{{cart_url}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "{{user_id}}",
+                "item",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove from Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{cart_url}}/api/cart/{{user_id}}/item/{{product_id}}",
+              "host": [
+                "{{cart_url}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "{{user_id}}",
+                "item",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Clear Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{cart_url}}/api/cart/{{user_id}}",
+              "host": [
+                "{{cart_url}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "{{user_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{cart_url}}/api/cart/{{user_id}}/validate",
+              "host": [
+                "{{cart_url}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "{{user_id}}",
+                "validate"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Create Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res._id) pm.collectionVariables.set('order_id', res._id);",
+                  "if (res.order?._id) pm.collectionVariables.set('order_id', res.order._id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"shippingAddress\": {\n    \"street\": \"123 MG Road\",\n    \"city\": \"Jaipur\",\n    \"state\": \"Rajasthan\",\n    \"zipCode\": \"302001\",\n    \"country\": \"India\"\n  },\n  \"paymentMethod\": \"card\"\n}"
+            },
+            "url": {
+              "raw": "{{order_url}}/api/orders",
+              "host": [
+                "{{order_url}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{order_url}}/api/orders/user/{{user_id}}",
+              "host": [
+                "{{order_url}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "user",
+                "{{user_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{order_url}}/api/orders/{{order_id}}",
+              "host": [
+                "{{order_url}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "{{order_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"shipped\"\n}"
+            },
+            "url": {
+              "raw": "{{order_url}}/api/orders/{{order_id}}/status",
+              "host": [
+                "{{order_url}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "{{order_id}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{order_url}}/api/orders/{{order_id}}/cancel",
+              "host": [
+                "{{order_url}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "{{order_id}}",
+                "cancel"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Process Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{order_id}}\",\n  \"paymentMethod\": \"card\",\n  \"cardDetails\": {\n    \"number\": \"4242424242424242\",\n    \"expiry\": \"12/26\",\n    \"cvv\": \"123\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{order_url}}/api/payments/process",
+              "host": [
+                "{{order_url}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "process"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health Checks",
+      "item": [
+        {
+          "name": "User Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{user_url}}/health",
+              "host": [
+                "{{user_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Product Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{product_url}}/health",
+              "host": [
+                "{{product_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cart Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{cart_url}}/health",
+              "host": [
+                "{{cart_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Order Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{order_url}}/health",
+              "host": [
+                "{{order_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "user_url",
+      "value": "http://localhost:3001"
+    },
+    {
+      "key": "product_url",
+      "value": "http://localhost:3002"
+    },
+    {
+      "key": "cart_url",
+      "value": "http://localhost:3003"
+    },
+    {
+      "key": "order_url",
+      "value": "http://localhost:3004"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "user_id",
+      "value": ""
+    },
+    {
+      "key": "product_id",
+      "value": ""
+    },
+    {
+      "key": "category_id",
+      "value": ""
+    },
+    {
+      "key": "order_id",
+      "value": ""
+    }
+  ]
+}
