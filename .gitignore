@@ -86,3 +86,6 @@ terraform.tfstate.backup
 .vault_pass
 *.vault_passterraform/terraform.tfvars
 terraform/*.tfvars
+terraform.tfvars
+terraform/terraform.tfvars
+terraform/*.tfvars
