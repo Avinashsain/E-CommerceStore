@@ -15,12 +15,13 @@
 4. [Project Structure](#4-project-structure)
 5. [Application Setup — Dockerfiles](#5-application-setup--dockerfiles)
 6. [Infrastructure Provisioning — Terraform](#6-infrastructure-provisioning--terraform)
-7. [Deployment — Step by Step](#7-deployment--step-by-step)
-8. [Issues Faced & Fixes](#8-issues-faced--fixes)
-9. [Screenshots](#9-screenshots)
-10. [Verification](#10-verification)
-11. [Cleanup](#11-cleanup)
-12. [Marks Breakdown](#12-marks-breakdown)
+7. [API Documentation — Postman Collection](#7-api-documentation--postman-collection)
+8. [Deployment — Step by Step](#8-deployment--step-by-step)
+9. [Issues Faced & Fixes](#9-issues-faced--fixes)
+10. [Screenshots](#10-screenshots)
+11. [Verification](#11-verification)
+12. [Cleanup](#12-cleanup)
+13. [Marks Breakdown](#13-marks-breakdown)
 
 ---
 
@@ -106,6 +107,7 @@ Terraform State:
 | Database | MongoDB Atlas |
 | State Management | AWS S3 + native locking |
 | Auth | JWT |
+| API Testing | Postman |
 
 ---
 
@@ -127,6 +129,9 @@ E-CommerceStore/
 │   ├── Dockerfile
 │   ├── src/
 │   └── package.json
+├── postman/
+│   ├── ECommerceStore.postman_collection.json
+│   └── ECommerceStore.postman_environment.json
 ├── terraform/
 │   ├── main.tf                VPC, EC2, Security Groups
 │   ├── backend.tf             S3 remote state + locking
@@ -254,7 +259,114 @@ The EC2 instance automatically on first boot:
 
 ---
 
-## 7. Deployment — Step by Step
+## 7. API Documentation — Postman Collection
+
+The Postman collection and environment files are included in the `postman/` folder.
+
+### Import into Postman
+
+1. Open Postman → click **Import**
+2. Import both files:
+   - `postman/ECommerceStore.postman_collection.json`
+   - `postman/ECommerceStore.postman_environment.json`
+3. Select **"E-Commerce Store - Local"** from the environment dropdown
+
+### API Endpoints
+
+#### Auth (User Service — port 3001)
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| POST | `/api/auth/register` | Register new user | No |
+| POST | `/api/auth/login` | Login → returns JWT token | No |
+| GET | `/api/users/profile` | Get user profile | Yes |
+| PUT | `/api/users/profile` | Update profile | Yes |
+
+#### Categories (Product Service — port 3002)
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| GET | `/api/categories` | Get all categories | No |
+| POST | `/api/categories` | Create category | Yes |
+| PUT | `/api/categories/:id` | Update category | Yes |
+| DELETE | `/api/categories/:id` | Delete category | Yes |
+
+#### Products (Product Service — port 3002)
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| GET | `/api/products` | Get all products | No |
+| GET | `/api/products/:id` | Get single product | No |
+| POST | `/api/products` | Create product | Yes |
+| PUT | `/api/products/:id` | Update product | Yes |
+| DELETE | `/api/products/:id` | Soft delete product | Yes |
+
+#### Cart (Cart Service — port 3003)
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| GET | `/api/cart/:userId` | Get user cart | Yes |
+| POST | `/api/cart/:userId/add` | Add item to cart | Yes |
+| PUT | `/api/cart/:userId/item/:productId` | Update cart item | Yes |
+| DELETE | `/api/cart/:userId/item/:productId` | Remove item | Yes |
+| DELETE | `/api/cart/:userId` | Clear cart | Yes |
+| POST | `/api/cart/:userId/validate` | Validate cart stock | Yes |
+
+#### Orders (Order Service — port 3004)
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| POST | `/api/orders` | Create order from cart | Yes |
+| GET | `/api/orders/user/:userId` | Get user orders | Yes |
+| GET | `/api/orders/:id` | Get single order | Yes |
+| PUT | `/api/orders/:id/status` | Update order status | Yes |
+| DELETE | `/api/orders/:id` | Cancel order | Yes |
+
+#### Payments (Order Service — port 3004)
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| POST | `/api/payments/process` | Process payment | Yes |
+
+### Postman Environment Variables
+
+| Variable | Auto-set by | Description |
+|---|---|---|
+| `token` | Login/Register | JWT auth token |
+| `user_id` | Login/Register | Current user ID |
+| `category_id` | Create Category | Last created category |
+| `product_id` | Create Product | Last created product |
+| `order_id` | Create Order | Last created order |
+
+### Correct Request Flow
+
+```
+1. Register / Login     → token + user_id auto-saved
+2. Create Category      → category_id auto-saved
+3. Create Product       → product_id auto-saved
+4. Add to Cart          → uses user_id + product_id
+5. Create Order         → order_id auto-saved
+6. Process Payment      → uses order_id
+```
+
+### Sample Product Request Body
+
+```json
+{
+  "name": "iPhone 15 Pro",
+  "description": "Latest Apple iPhone with A17 Pro chip",
+  "price": 999,
+  "category": "{{category_id}}",
+  "brand": "Apple",
+  "stock": 50,
+  "images": [{ "url": "https://placehold.co/400x400/000000/FFFFFF?text=iPhone+15+Pro", "alt": "iPhone 15 Pro" }],
+  "inventory": { "sku": "APPLE-IP15P-001", "quantity": 50 }
+}
+```
+
+---
+
+## 8. Deployment — Step by Step
 
 ### Prerequisites
 
@@ -338,7 +450,7 @@ docker ps
 
 ---
 
-## 8. Issues Faced & Fixes
+## 9. Issues Faced & Fixes
 
 | # | Issue | Error | Fix |
 |---|---|---|---|
@@ -359,68 +471,48 @@ docker ps
 
 ---
 
-## 9. Screenshots
+## 10. Screenshots
 
-> **Add screenshots here after deployment.**
+### 10.1 Terraform Apply Success
+![Terraform Apply 1](./screenshots/terraform-apply-1.png)
+![Terraform Apply 2](./screenshots/terraform-apply-2.png)
 
-### 9.1 Terraform Apply Success
-```
-Screenshot: terraform apply output showing all resources created
-Path: screenshots/terraform-apply-1.png
-Path: screenshots/terraform-apply-2.png
-```
+### 10.2 Terraform Outputs
+![Terraform Outputs](./screenshots/terraform-output.png)
 
-### 9.2 Terraform Outputs
-```
-Screenshot: terraform output showing all URLs and IDs
-Path: screenshots/terraform-output.png
-```
+### 10.3 EC2 Instance Running
+![EC2 Running](./screenshots/ec2-running.png)
 
-### 9.3 EC2 Instance Running
-```
-Screenshot: AWS Console → EC2 → Instances showing running instance
-Path: screenshots/ec2-running.png
-```
+### 10.4 VPC and Networking
+![VPC Networking](./screenshots/vpc-networking.png)
 
-### 9.4 VPC and Networking
-```
-Screenshot: AWS Console → VPC showing VPC, subnets, IGW
-Path: screenshots/vpc-networking.png
-```
+### 10.5 Security Group Rules
+![Security Group](./screenshots/security-group.png)
 
-### 9.5 Security Group Rules
-```
-Screenshot: AWS Console → Security Groups showing inbound rules
-Path: screenshots/security-group.png
-```
+### 10.6 Docker Containers Running on EC2
+![Docker PS](./screenshots/docker-ps.png)
 
-### 9.6 Docker Containers Running on EC2
-```
-Screenshot: docker ps output showing all 5 containers Up
-Path: screenshots/docker-ps.png
-```
+### 10.7 Frontend Accessible via Public IP
+![Frontend Live](./screenshots/frontend-live.png)
 
-### 9.7 Frontend Accessible via Public IP
-```
-Screenshot: Browser showing http://PUBLIC_IP:3000
-Path: screenshots/frontend-live.png
-```
+### 10.8 DockerHub Images
+![DockerHub Images](./screenshots/dockerhub-images.png)
 
-### 9.8 DockerHub Images
-```
-Screenshot: hub.docker.com/u/avinashsain65 showing all 5 images
-Path: screenshots/dockerhub-images.png
-```
+### 10.9 S3 Terraform State
+![S3 State](./screenshots/s3-state.png)
 
-### 9.9 S3 Terraform State
-```
-Screenshot: AWS S3 bucket showing terraform.tfstate file
-Path: screenshots/s3-state.png
-```
+### 10.10 Postman Collection
+![Postman Collection](./screenshots/postman-collection.png)
+
+### 10.11 Postman API Test — Login
+![Postman Login](./screenshots/postman-login.png)
+
+### 10.12 Postman API Test — Create Product
+![Postman Product](./screenshots/postman-product.png)
 
 ---
 
-## 10. Verification
+## 11. Verification
 
 ### Test all services from terminal
 
@@ -465,7 +557,7 @@ xxxx          avinashsain65/order-service        Up 5 minutes   0.0.0.0:3004->30
 
 ---
 
-## 11. Cleanup
+## 12. Cleanup
 
 ```bash
 # Destroy all AWS resources
@@ -479,7 +571,7 @@ aws s3api delete-bucket --bucket avinashsain65-terraform-state
 
 ---
 
-## 12. Marks Breakdown
+## 13. Marks Breakdown
 
 | Component | Marks | Implementation | Status |
 |---|---|---|---|
@@ -487,7 +579,7 @@ aws s3api delete-bucket --bucket avinashsain65-terraform-state
 | EC2 provisioning with Docker setup | 10 | `user_data.sh` — installs Docker CE on Ubuntu 22.04, adds ubuntu to docker group | ✅ |
 | Docker container deployment via user-data | 10 | `user_data.sh` — pulls 5 images from DockerHub, runs with `docker compose up -d` | ✅ |
 | Public access to frontend | 10 | EC2 public IP + port 3000 open in SG + React app accessible at `http://PUBLIC_IP:3000` | ✅ |
-| Documentation | 10 | This README — architecture, issues, fixes, screenshots, verification steps | ✅ |
+| Documentation | 10 | This README — architecture, API docs, Postman collection, issues, fixes, screenshots | ✅ |
 | **Total** | **50** | | ✅ |
 
 ---
@@ -503,3 +595,9 @@ aws s3api delete-bucket --bucket avinashsain65-terraform-state
 ---
 
 *Deployed with Terraform + Docker on AWS EC2 | MongoDB Atlas | DockerHub*
+
+## Author
+
+**Avinash Sain**  
+GitHub: https://github.com/Avinashsain  
+Repository: https://github.com/Avinashsain/E-CommerceStore
