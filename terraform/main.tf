@@ -7,7 +7,7 @@ resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
   enable_dns_support   = true
-  tags = { Name = "${var.project_name}-vpc", Project = var.project_name }
+  tags                 = { Name = "${var.project_name}-vpc", Project = var.project_name }
 }
 
 # ── Internet Gateway ─────────────────────
@@ -22,7 +22,7 @@ resource "aws_subnet" "public" {
   cidr_block              = "10.0.1.0/24"
   availability_zone       = "${var.aws_region}a"
   map_public_ip_on_launch = true
-  tags = { Name = "${var.project_name}-public-subnet", Project = var.project_name }
+  tags                    = { Name = "${var.project_name}-public-subnet", Project = var.project_name }
 }
 
 # ── Route Table ──────────────────────────
