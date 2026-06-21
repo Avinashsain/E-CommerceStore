@@ -69,3 +69,19 @@ desktop.ini
 # ========================
 *.log
 logs/
+
+# Misc
+*.log
+.cache/
+.tmp/
+temp/
+.terraform 
+
+.
+..
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+
+.vault_pass
+*.vault_pass
