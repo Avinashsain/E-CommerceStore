@@ -1,8 +1,7 @@
 # E-Commerce Store — Terraform + Docker on AWS
 
 > **Assignment:** Deploy a Multi-Service Node.js E-commerce Application Using Terraform and Docker  
-> **Marks:** 50 | **Time Limit:** 1 Hour  
-> **Student:** Avinash Sain  
+> **Author:** Avinash Sain  
 > **GitHub:** https://github.com/Avinashsain/E-CommerceStore
 
 ---
@@ -494,6 +493,12 @@ docker ps
 
 ### 10.7 Frontend Accessible via Public IP
 ![Frontend Live](./screenshots/frontend-live.png)
+![Frontend Register](./screenshots/frontend-live-2.png)
+![Frontend Products](./screenshots/frontend-live-3.png)
+![Frontend Product Details](./screenshots/frontend-live-4.png)
+![Frontend Cart](./screenshots/frontend-live-5.png)
+![Frontend Checkout](./screenshots/frontend-live-6.png)
+![Frontend Orders](./screenshots/frontend-live-7.png)
 
 ### 10.8 DockerHub Images
 ![DockerHub Images](./screenshots/dockerhub-images.png)
@@ -568,20 +573,6 @@ terraform destroy
 aws s3 rm s3://avinashsain65-terraform-state --recursive
 aws s3api delete-bucket --bucket avinashsain65-terraform-state
 ```
-
----
-
-## 13. Marks Breakdown
-
-| Component | Marks | Implementation | Status |
-|---|---|---|---|
-| VPC, subnet, security group setup | 10 | `main.tf` — full VPC with IGW, route table, security group with proper port rules | ✅ |
-| EC2 provisioning with Docker setup | 10 | `user_data.sh` — installs Docker CE on Ubuntu 22.04, adds ubuntu to docker group | ✅ |
-| Docker container deployment via user-data | 10 | `user_data.sh` — pulls 5 images from DockerHub, runs with `docker compose up -d` | ✅ |
-| Public access to frontend | 10 | EC2 public IP + port 3000 open in SG + React app accessible at `http://PUBLIC_IP:3000` | ✅ |
-| Documentation | 10 | This README — architecture, API docs, Postman collection, issues, fixes, screenshots | ✅ |
-| **Total** | **50** | | ✅ |
-
 ---
 
 ## Security Notes
@@ -595,9 +586,3 @@ aws s3api delete-bucket --bucket avinashsain65-terraform-state
 ---
 
 *Deployed with Terraform + Docker on AWS EC2 | MongoDB Atlas | DockerHub*
-
-## Author
-
-**Avinash Sain**  
-GitHub: https://github.com/Avinashsain  
-Repository: https://github.com/Avinashsain/E-CommerceStore
