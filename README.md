@@ -422,24 +422,24 @@ terraform output
 ```
 
 ```
-cart_service_url    = "http://3.237.240.98:3003"
+cart_service_url    = "http://98.81.52.9:3003"
 ec2_instance_id     = "i-095c5bd1a20a45eab"
-frontend_url        = "http://3.237.240.98:3000"
-order_service_url   = "http://3.237.240.98:3004"
-product_service_url = "http://3.237.240.98:3002"
+frontend_url        = "http://98.81.52.9:3000"
+order_service_url   = "http://98.81.52.9:3004"
+product_service_url = "http://98.81.52.9:3002"
 public_dns          = "ec2-3-237-240-98.compute-1.amazonaws.com"
-public_ip           = "3.237.240.98"
+public_ip           = "98.81.52.9"
 security_group_id   = "sg-0f0dc4191ceca6f5c"
-ssh_command         = "ssh -i ~/.ssh/id_rsa ubuntu@3.237.240.98"
+ssh_command         = "ssh -i ~/.ssh/id_rsa ubuntu@98.81.52.9"
 subnet_id           = "subnet-0abd1d7edd2b30962"
-user_service_url    = "http://3.237.240.98:3001"
+user_service_url    = "http://98.81.52.9:3001"
 vpc_id              = "vpc-0d527bbc7acbd989c"
 ```
 
 ### Step 5 — SSH and verify
 
 ```bash
-ssh -i ~/.ssh/id_rsa ubuntu@3.237.240.98
+ssh -i ~/.ssh/id_rsa ubuntu@98.81.52.9
 
 # Check bootstrap log
 cat /var/log/user-data.log
@@ -518,30 +518,30 @@ docker ps
 
 ```bash
 # Frontend
-curl http://3.237.240.98:3000
+curl http://98.81.52.9:3000
 # Expected: HTML page "Frontend is Live"
 
 # User Service
-curl http://3.237.240.98:3001/health
+curl http://98.81.52.9:3001/health
 # Expected: {"status":"ok","service":"user-service"}
 
 # Product Service
-curl http://3.237.240.98:3002/health
+curl http://98.81.52.9:3002/health
 # Expected: {"status":"ok","service":"product-service"}
 
 # Cart Service
-curl http://3.237.240.98:3003/health
+curl http://98.81.52.9:3003/health
 # Expected: {"status":"ok","service":"cart-service"}
 
 # Order Service
-curl http://3.237.240.98:3004/health
+curl http://98.81.52.9:3004/health
 # Expected: {"status":"ok","service":"order-service"}
 ```
 
 ### Check containers on EC2
 
 ```bash
-ssh -i ~/.ssh/id_rsa ubuntu@3.237.240.98
+ssh -i ~/.ssh/id_rsa ubuntu@98.81.52.9
 docker ps
 ```
 
